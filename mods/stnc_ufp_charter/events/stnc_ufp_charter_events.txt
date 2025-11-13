@@ -1,0 +1,333 @@
+namespace = stnc_ufp_charter
+
+# Prevent UE-specific crises from firing so the forced charter is clean.
+country_event = {
+	id = stnc_ufp_charter.0
+	hide_window = yes
+	is_triggered_only = yes
+	trigger = {
+		is_normal_country = yes
+		is_ai = yes
+		has_country_flag = "united_earth"
+		NOT = { has_country_flag = "united_federation_of_planets" }
+		STNC_mirror_maps = no
+		STNC_botf_map = no
+	}
+	immediate = {
+		log = "STNC_UFP_CHARTER: stnc_ufp_charter.0 fired for [This.GetName]"
+		set_country_flag = "stnc_ufp_charter_watch"
+		if = {
+			limit = { NOT = { has_global_flag = "stnc_ufp_charter_active" } }
+			log = "STNC_UFP_CHARTER: Setting global watcher for [This.GetName]"
+			set_global_flag = "stnc_ufp_charter_active"
+			save_global_event_target_as = stnc_ufp_charter_target
+		}
+		if = { limit = { NOT = { has_country_flag = "augments_crisis" } } set_country_flag = "augments_crisis" }
+		if = { limit = { NOT = { has_country_flag = "demons_crisis_started" } } set_country_flag = "demons_crisis_started" }
+		if = { limit = { NOT = { has_country_flag = "paxton_captured" } } set_country_flag = "paxton_captured" }
+		if = { limit = { NOT = { has_country_flag = "early_game_crisis" } } set_country_flag = "early_game_crisis" }
+		set_variable = { which = "early_game_crisis" value = 3 }
+		log = "STNC_UFP_CHARTER: Scheduling first yearly poll for [This.GetName]"
+	}
+}
+
+# Yearly poll to see if the charter can be triggered.
+country_event = {
+	id = stnc_ufp_charter.2
+	hide_window = yes
+	trigger = {
+		has_country_flag = "stnc_ufp_charter_watch"
+		is_normal_country = yes
+		is_ai = yes
+		has_country_flag = "united_earth"
+		NOT = { has_country_flag = "united_federation_of_planets" }
+		has_global_flag = "stnc_ufp_charter_active"
+		STNC_mirror_maps = no
+		STNC_botf_map = no
+	}
+	immediate = {
+		log = "STNC_UFP_CHARTER: Yearly poll at [This.GetName]"
+		set_variable = { which = stnc_charter_internal value = 0 }
+		set_variable = { which = stnc_charter_external value = 0 }
+		if = {
+			limit = { check_variable_arithmetic = { add = value:calendar_year value < 2160 } }
+			log = "STNC_UFP_CHARTER: Monitoring phase (pre-2160), no enforcement"
+		}
+		else = {
+			log = "STNC_UFP_CHARTER: Preparation window active"
+			every_country = {
+				limit = {
+					is_normal_country = yes
+					is_ai = yes
+					OR = {
+						is_same_value = root
+						has_country_flag = "federation_founder"
+					}
+				}
+				if = {
+					limit = { is_in_federation = yes }
+					log = "STNC_UFP_CHARTER: Forcing [This.GetName] out of conflicting federation"
+					leave_alliance = { override_requirements = yes }
+				}
+				if = {
+					limit = {
+						any_country = {
+							NOT = { has_country_flag = "federation_founder" }
+							is_at_war_with = prev
+						}
+					}
+					change_variable = { which = stnc_charter_external value = 1 }
+				}
+				if = {
+					limit = {
+						any_country = {
+							has_country_flag = "federation_founder"
+							NOT = { is_same_value = prev }
+							is_at_war_with = prev
+						}
+					}
+					change_variable = { which = stnc_charter_internal value = 1 }
+				}
+			}
+			if = {
+				limit = { check_variable_arithmetic = { add = value:calendar_year value >= 2161 } }
+				log = "STNC_UFP_CHARTER: Charter window open"
+				if = {
+					limit = { check_variable_arithmetic = { which = stnc_charter_internal value > 0 } }
+					log = "STNC_UFP_CHARTER: Ending internal founder wars"
+					every_war = {
+						limit = {
+							any_war_participant = { has_country_flag = "federation_founder" }
+							NOT = {
+								any_war_participant = {
+									NOR = {
+										has_country_flag = "federation_founder"
+										has_country_flag = "united_earth"
+									}
+								}
+							}
+						}
+						end_war_effect = yes
+					}
+				}
+				if = {
+					limit = { check_variable_arithmetic = { which = stnc_charter_external value > 0 } }
+					log = "STNC_UFP_CHARTER: External wars detected, delaying federation formation"
+				}
+				else = {
+					log = "STNC_UFP_CHARTER: Triggering conversion for [This.GetName]"
+					country_event = { id = stnc_ufp_charter.1 }
+				}
+			}
+			else = {
+				log = "STNC_UFP_CHARTER: 2160 prep complete, waiting for 2161"
+			}
+		}
+		set_variable = { which = stnc_charter_internal value = 0 }
+		set_variable = { which = stnc_charter_external value = 0 }
+	}
+}
+
+# Track Vulcan so the Confederacy of Surak always forms.
+country_event = {
+	id = stnc_ufp_charter.4
+	hide_window = yes
+	is_triggered_only = yes
+	trigger = {
+		is_normal_country = yes
+		is_ai = yes
+		has_country_flag = "vulcan_high_command"
+		NOT = { has_country_flag = "confederacy_of_surak" }
+		STNC_mirror_maps = no
+		STNC_botf_map = no
+	}
+	immediate = {
+		log = "STNC_UFP_CHARTER: stnc_ufp_charter.4 watching [This.GetName]"
+		set_country_flag = "stnc_vulcan_watch"
+		if = {
+			limit = { NOT = { has_global_flag = "stnc_vulcan_watch_active" } }
+			log = "STNC_UFP_CHARTER: Storing [This.GetName] as Vulcan target"
+			set_global_flag = "stnc_vulcan_watch_active"
+			save_global_event_target_as = stnc_vulcan_target
+		}
+		if = {
+			limit = { NOT = { has_country_flag = "syrrannite_crisis" } }
+			log = "STNC_UFP_CHARTER: Suppressing fragile Syrrannite setup for [This.GetName]"
+			set_country_flag = "syrrannite_crisis"
+		}
+	}
+}
+
+country_event = {
+	id = stnc_ufp_charter.5
+	hide_window = yes
+	trigger = {
+		has_country_flag = "stnc_vulcan_watch"
+		is_normal_country = yes
+		is_ai = yes
+		STNC_mirror_maps = no
+		STNC_botf_map = no
+	}
+	immediate = {
+		log = "STNC_UFP_CHARTER: Vulcan yearly check for [This.GetName]"
+		if = {
+			limit = { has_country_flag = "confederacy_of_surak" }
+			log = "STNC_UFP_CHARTER: [This.GetName] already Confederacy of Surak, cleaning watcher"
+			remove_country_flag = "stnc_vulcan_watch"
+			if = {
+				limit = { has_global_flag = "stnc_vulcan_watch_active" }
+				if = {
+					limit = { exists = event_target:stnc_vulcan_target }
+					if = { limit = { is_same_value = event_target:stnc_vulcan_target } clear_global_flag = "stnc_vulcan_watch_active" }
+				}
+				else = { clear_global_flag = "stnc_vulcan_watch_active" }
+			}
+		}
+		else_if = {
+			limit = { check_variable_arithmetic = { add = value:calendar_year value < 2158 } }
+			log = "STNC_UFP_CHARTER: Waiting for 2158+ before enforcing Confederacy"
+		}
+		else = {
+			log = "STNC_UFP_CHARTER: Forcing Confederacy of Surak transition for [This.GetName]"
+			become_confederacy_of_surak_country = yes
+			log = "STNC_UFP_CHARTER: [This.GetName] converted to Confederacy of Surak"
+			remove_country_flag = "stnc_vulcan_watch"
+			if = {
+				limit = { has_global_flag = "stnc_vulcan_watch_active" }
+				if = {
+					limit = { exists = event_target:stnc_vulcan_target }
+					if = { limit = { is_same_value = event_target:stnc_vulcan_target } clear_global_flag = "stnc_vulcan_watch_active" }
+				}
+				else = { clear_global_flag = "stnc_vulcan_watch_active" }
+			}
+		}
+	}
+}
+
+# Forces the classic Federation charter to be signed on 1 Jan 2161 whenever
+# United Earth is AI-controlled and no player has picked a founding empire.
+country_event = {
+	id = stnc_ufp_charter.1
+	hide_window = yes
+	is_triggered_only = yes
+	trigger = {
+		has_country_flag = "stnc_ufp_charter_watch"
+		is_normal_country = yes
+		is_ai = yes
+		has_country_flag = "united_earth"
+		NOT = { has_country_flag = "united_federation_of_planets" }
+		NOT = {
+			any_country = {
+				has_country_flag = "united_federation_of_planets"
+				NOT = { has_country_flag = "federation_expedition_force" }
+			}
+		}
+		NOT = { has_country_flag = "stnc_ufp_charter_done" }
+		NOT = {
+			any_country = {
+				has_country_flag = "federation_founder"
+				is_ai = no
+				NOT = { is_same_value = root }
+			}
+		}
+		has_global_flag = "stnc_ufp_charter_active"
+		STNC_mirror_maps = no
+		STNC_botf_map = no
+		check_variable_arithmetic = { add = value:calendar_year value >= 2161 }
+	}
+	immediate = {
+		log = "STNC_UFP_CHARTER: stnc_ufp_charter.1 firing for [This.GetName]"
+		set_country_flag = "stnc_ufp_charter_done"
+		remove_country_flag = "stnc_ufp_charter_watch"
+		clear_global_flag = "stnc_ufp_charter_active"
+		set_country_flag = "federation_leader"
+		remove_country_flag = "not_wants_federation"
+		set_country_flag = "wants_federation"
+		set_country_flag = "considering_federation"
+		remove_country_flag = "demons_crisis_started"
+		remove_country_flag = "augments_crisis"
+		remove_country_flag = "early_game_crisis"
+		remove_country_flag = "wants_isu"
+		remove_country_flag = "considering_isu"
+		set_global_flag = "federation_in_progress"
+
+		if = {
+			limit = { STNC_mirror_maps = no }
+			remove_country_flag = "united_earth"
+			set_country_flag = "united_federation_of_planets"
+			set_country_flag = "flag_federation_2161"
+			set_country_flag = "flag_available_federation_2161"
+			set_appropriate_country_flag = yes
+			set_empire_name = "United Federation of Planets"
+			set_name = "NAME_United_Federation_Of_Planets"
+			set_adjective = "NAME_United_Federation_Of_Planets_Adjective"
+			set_graphical_culture = starfleet
+			add_appropriate_start_techs = yes
+			swap_to_ufp_origin = yes
+			log = "STNC_UFP_CHARTER: Converted [This.GetName] into UFP"
+		}
+
+		every_country = {
+			limit = {
+				is_normal_country = yes
+				is_ai = yes
+				OR = {
+					has_country_flag = "andorian_empire"
+					has_country_flag = "vulcan_high_command"
+					has_country_flag = "united_planets_of_tellar"
+				}
+			}
+				log = "STNC_UFP_CHARTER: Prepping founder [Prev.GetName] for accession"
+			remove_country_flag = "not_wants_federation"
+			set_country_flag = "wants_federation"
+			set_country_flag = "considering_federation"
+			remove_country_flag = "wants_isu"
+			remove_country_flag = "considering_isu"
+			root = { establish_communications_no_message = prev }
+			establish_communications_no_message = root
+		}
+
+		if = {
+			limit = { STNC_botf_map = no }
+			every_country = {
+				limit = {
+					has_country_flag = "federation_founder"
+					is_ai = yes
+					NOT = { is_same_value = root }
+				}
+				log = "STNC_UFP_CHARTER: Calling federation_accession for [Prev.GetName]"
+				establish_communications_no_message = root
+				federation_accession = yes
+			}
+			add_modifier = { modifier = em_free_conversion years = 2 }
+			capital_scope = {
+				if = {
+					limit = { exists = event_target:andorian_species }
+					create_pop_group = {
+						species = event_target:andorian_species
+						size = 10
+						effect = { set_pop_group_flag = "init_spawn" }
+					}
+				}
+				if = {
+					limit = { exists = event_target:tellarite_species }
+					create_pop_group = {
+						species = event_target:tellarite_species
+						size = 10
+						effect = { set_pop_group_flag = "init_spawn" }
+					}
+				}
+				if = {
+					limit = { exists = event_target:vulcan_species }
+					create_pop_group = {
+						species = event_target:vulcan_species
+						size = 20
+						effect = { set_pop_group_flag = "init_spawn" }
+					}
+				}
+			}
+		}
+
+		country_event = { id = STNC_federation_mechanics.5 }
+	}
+}

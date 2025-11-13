@@ -1,0 +1,13 @@
+on_game_start_country = {
+	events = {
+		stnc_ufp_charter.0
+		stnc_ufp_charter.4
+	}
+}
+
+on_yearly_pulse_country = {
+	events = {
+		stnc_ufp_charter.2
+		stnc_ufp_charter.5
+	}
+}
