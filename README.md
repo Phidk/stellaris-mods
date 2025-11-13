@@ -4,9 +4,12 @@ This repository serves as a development area for Stellaris mods. It collects sel
 
 Included mods
 - "STNC - AI Federation Charter" -> mods/stnc_ufp_charter/, descriptors/stnc_ufp_charter.mod
-- "Star Trek - Stellar Cartography Map (Simple) - Remade" -> mods/simple/, descriptors/simple.mod
-- "Star Trek - Stellar Cartography Map (2 Quadrants) - Remade" -> mods/2_quadrants/, descriptors/2_quadrants.mod
-- "Star Trek - Stellar Cartography Map (4 Quadrants) - Remade" -> mods/4_quadrants/, descriptors/4_quadrants.mod
+- "Star Trek - Stellar Cartography Map (Simple) - New Civilisations" -> mods/simple/, descriptors/simple.mod
+- "Star Trek - Stellar Cartography Map (2 Quadrants) - New Civilisations" -> mods/2_quadrants/, descriptors/2_quadrants.mod
+- "Star Trek - Stellar Cartography Map (4 Quadrants) - New Civilisations" -> mods/4_quadrants/, descriptors/4_quadrants.mod
+- "Star Trek - Stellar Cartography Map (Simple) - New Horizons" -> mods/simple_nh/, descriptors/simple_nh.mod
+- "Star Trek - Stellar Cartography Map (2 Quadrants) - New Horizons" -> mods/2_quadrants_nh/, descriptors/2_quadrants_nh.mod
+- "Star Trek - Stellar Cartography Map (4 Quadrants) - New Horizons" -> mods/4_quadrants_nh/, descriptors/4_quadrants_nh.mod
 
 Repository structure
 - mods/<modname>/ - the mod content directories (common, events, gfx, localisation, etc.)
@@ -22,8 +25,13 @@ Exports and assets
 - A .dds mask (e.g., mods/2_quadrants/gfx/particles/grid_stars_3.dds.mask.png) may be present to guide channel/alpha when preparing DDS textures.
 
 Descriptor files
-- Each mod directory contains its own descriptor at mods/<modname>/descriptor.mod for packaging and Workshop metadata (name, picture, supported_version, remote_file_id).
+- Each mod directory contains its own descriptor at mods/<modname>/descriptor.mod for packaging and Workshop metadata (name, picture, supported_version, and remote_file_id when applicable).
 - The descriptors/*.mod copies are convenience files for a local Launcher setup pointing to the working copy under Documents/Stellaris/mod. Keep these in sync with the mod folder names.
+
+New Horizons overlays
+- The *_nh folders depend on "Star Trek: New Horizons" and only ship art/sound assets tied to NH's galaxy map.
+- NH injects its own `grid_particle` overlay via `gfx/models/galaxy_map/grid_map.asset`. When an extra overlay (like the remade grid) starts alongside it, both additive shaders stack and their intensity increases whenever NH reinitializes the galaxy view (the brightness bug seen previously).
+- The NH variants override the same `grid_map.asset` and spawn `grid_galaxy` instead, so there is always a single persistent overlay and no compounding brightness.
 
 Using these mods with Stellaris
 Option A - Subscribe on Steam Workshop (recommended for players)
