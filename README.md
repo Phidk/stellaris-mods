@@ -12,6 +12,19 @@ Repository structure
 - mods/<modname>/ - the mod content directories (common, events, gfx, localisation, etc.)
 - descriptors/*.mod - the Stellaris .mod descriptor files as used by the launcher
 
+Exports and assets
+- mods/exports/ - rendered images exported from the mods for sharing, previews, and tooling.
+  - submod_maps/ - base map renders (PNG) for Simple, 2 Quadrants, 4 Quadrants.
+  - submod_maps_color_overlay/ - map renders with color overlay (PNG).
+  - submod_maps_color_overlay_2mb/ - compressed JPG variants (~2 MB) for easier distribution.
+  - grid_stars_png/ - PNG exports of the star grid layers used by the particle assets.
+- Each mod folder also contains a thumbnail at mods/<modname>/thumbnail.png used by the Launcher.
+- A .dds mask (e.g., mods/2_quadrants/gfx/particles/grid_stars_3.dds.mask.png) may be present to guide channel/alpha when preparing DDS textures.
+
+Descriptor files
+- Each mod directory contains its own descriptor at mods/<modname>/descriptor.mod for packaging and Workshop metadata (name, picture, supported_version, remote_file_id).
+- The descriptors/*.mod copies are convenience files for a local Launcher setup pointing to the working copy under Documents/Stellaris/mod. Keep these in sync with the mod folder names.
+
 Using these mods with Stellaris
 Option A - Subscribe on Steam Workshop (recommended for players)
 - Open the mod's Workshop page and click Subscribe. For all mods, see: https://steamcommunity.com/profiles/76561198067471567/myworkshopfiles/ or search by name in Steam.
